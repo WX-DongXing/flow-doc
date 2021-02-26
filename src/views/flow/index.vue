@@ -3,7 +3,7 @@
     <section class="flow__section">
       <header>
         <input type="text" name="title" value="flow" class="flow__title">
-        <input type="text" name="subtitle" value="doc" class="flow__subtitle">
+        <input type="text" name="desc" value="doc" class="flow__desc">
       </header>
     </section>
   </div>
@@ -48,7 +48,7 @@ export default {
     margin: 12px 0;
   }
 
-  &__subtitle {
+  &__desc {
     color: #2c3e50;
     font-size: 14px;
     margin: 0;
