@@ -53,7 +53,7 @@
       </div>
       <!-- / page content -->
 
-      <div class="flow__actions">
+      <div class="flow__actions" v-if="activePage?.children.length > 0">
         <el-button type="primary" icon="el-icon-top" circle></el-button>
         <el-button type="primary" icon="el-icon-bottom" circle></el-button>
       </div>
@@ -237,6 +237,7 @@ export default {
     flex-flow: column nowrap;
     justify-content: center;
     align-content: center;
+    width: 100%;
 
     i {
       font-size: 64px;
@@ -244,6 +245,7 @@ export default {
   }
 
   &__content {
+    min-height: calc(100vh - 121px);
     box-sizing: border-box;
     padding: 0 48px;
   }
