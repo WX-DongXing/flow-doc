@@ -1,3 +1,4 @@
+import { omit } from 'lodash'
 import { createStore } from 'vuex'
 import MutationTypes from '@/store/mutation-types'
 
@@ -21,6 +22,10 @@ export default createStore({
     },
     // 设置激活页
     [MutationTypes.SET_ACTIVE_PAGE] (state, payload) {
+      if (!payload) {
+        state.activePage = state.source[0]
+        return
+      }
       const { index, id } = payload
       if (index && index >= 0) {
         state.activePage = state.source[index]
@@ -37,7 +42,7 @@ export default createStore({
       }
       if (id) {
         const target = state.source.find(item => item.id === id)
-        Object.assign(target, page)
+        Object.assign(target, omit(page, 'id'))
       }
     },
     // 添加一条记录
@@ -73,7 +78,8 @@ export default createStore({
       }
       if (id) {
         const target = state.activePage.children.find(item => item.id === id)
-        Object.assign(target, record)
+        console.log(target)
+        Object.assign(target, omit(record, 'id'))
       }
     }
   },

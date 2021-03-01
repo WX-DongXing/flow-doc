@@ -22,6 +22,8 @@
 </template>
 
 <style lang="scss">
+@import '@/assets/scss/theme';
+
 html, body {
   margin: 0;
   padding: 0;
@@ -34,19 +36,22 @@ html, body {
   align-items: center;
   height: 100vh;
   width: 100vw;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: alibaba, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+
+  input {
+    font-family: alibaba, Avenir, Helvetica, Arial, sans-serif;
+  }
 }
 
 aside {
   flex: none;
   height: 100vh;
   width: 56px;
-  background: #fafdfe;
-  border-right: 1px solid #e6e6e6;
+  background: #f7fafc;
 
   i {
     font-size: 24px;
@@ -66,18 +71,24 @@ aside {
     margin-top: 24px;
 
     &__item {
-      height: 56px;
-      width: 100%;
+      height: 48px;
+      width: calc(100% - 4px);
       cursor: pointer;
       line-height: 56px;
       text-decoration: none;
+      border-right: 2px solid transparent;
+      border-left: 2px solid transparent;
 
       &:hover {
         background: #ecf5ff;
       }
 
-      &.router-link-exact-active i {
-        color: #409EFF;
+      &.router-link-exact-active {
+        border-right: 2px solid $primary;
+
+        i {
+          color: $primary;
+        }
       }
     }
   }
@@ -86,6 +97,6 @@ aside {
 main {
   height: 100vh;
   width: 100%;
-  background: #f2f5f7;
+  background: #f7fafc;
 }
 </style>
