@@ -1,5 +1,7 @@
 <template>
   <div class="flow">
+
+    <!-- S aside -->
     <aside class="flow__aside">
       <div class="flow__name">
         <h3>Flow</h3>
@@ -9,6 +11,9 @@
         <el-tree :data="source" :props="treeProps" @node-click="handleNodeClick"></el-tree>
       </div>
     </aside>
+    <!-- E aside -->
+
+    <!-- S page content -->
     <section class="flow__page" v-if="activePage">
       <div class="flow__header">
         <div class="flow__info">
@@ -36,6 +41,8 @@
           <i class="el-icon-plus flow__close" @click="handleAddRecord"></i>
         </div>
       </div>
+      <!-- / page header -->
+
       <div class="flow__content">
         <record-card
           v-for="(record, index) of records"
@@ -44,11 +51,24 @@
           :data="record"
         />
       </div>
+      <!-- / page content -->
+
+      <div class="flow__actions">
+        <el-button type="primary" icon="el-icon-top" circle></el-button>
+        <el-button type="primary" icon="el-icon-bottom" circle></el-button>
+      </div>
+      <!-- / page actions -->
+
     </section>
+    <!-- E page content -->
+
+    <!-- S none page -->
     <section class="flow__none" v-else>
       <i class="el-icon-files"></i>
       <p>暂无数据</p>
     </section>
+    <!-- E none page -->
+
   </div>
 </template>
 
@@ -133,12 +153,13 @@ export default {
   width: 100%;
   overflow: auto;
 
-  aside {
+  &__aside {
     width: 240px;
     background: white;
   }
 
-  section {
+  &__page {
+    position: relative;
     height: 100vh;
     width: 100%;
     overflow: auto;
@@ -225,6 +246,25 @@ export default {
   &__content {
     box-sizing: border-box;
     padding: 0 48px;
+  }
+
+  &__actions {
+    position: fixed;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 150px;
+    width: 56px;
+    z-index: 1;
+    top: calc(50% - 75px);
+    right: 24px;
+
+    button {
+      font-size: 18px;
+      border: none;
+      box-shadow: 0 3px 5px -1px rgb(0 0 0 / 20%), 0 6px 10px 0 rgb(0 0 0 / 14%), 0 1px 18px 0 rgb(0 0 0 / 12%);
+    }
   }
 }
 </style>
