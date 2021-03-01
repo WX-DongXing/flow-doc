@@ -6,7 +6,9 @@ export default createStore({
   state: {
     source: [],
     activePage: null,
-    activeRecord: null
+    pageIndex: 0,
+    activeRecord: null,
+    recordIndex: 0
   },
   mutations: {
     // 添加一页
@@ -23,15 +25,18 @@ export default createStore({
     // 设置激活页
     [MutationTypes.SET_ACTIVE_PAGE] (state, payload) {
       if (!payload) {
-        state.activePage = state.source[0]
+        state.pageIndex = 0
         return
       }
       const { index, id } = payload
       if (index && index >= 0) {
-        state.activePage = state.source[index]
+        state.pageIndex = index
       }
       if (id) {
-        state.activePage = state.source.find(page => page.id === id)
+        const pageIndex = state.source.findIndex(page => page.id === id)
+        if (~pageIndex) {
+          state.pageIndex = pageIndex
+        }
       }
     },
     // 更新页信息
@@ -45,43 +50,58 @@ export default createStore({
         Object.assign(target, omit(page, 'id'))
       }
     },
+    // 设置页索引
+    [MutationTypes.SET_PAGE_INDEX] (state, payload) {
+      state.pageIndex = payload.index
+    },
     // 添加一条记录
     [MutationTypes.ADD_RECORD] (state, payload) {
-      if (!state.activePage) return
-      state.activePage.children.push(payload.record)
+      if (!state.source[state.pageIndex]) return
+      state.source[state.pageIndex].children.push(payload.record)
     },
     // 移除一条记录
     [MutationTypes.REMOVE_RECORD] (state, payload) {
-      if (!state.activePage) return
-      const recordIndex = state.activePage.children.findIndex(record => record.id === payload.id)
+      if (!state.source[state.pageIndex]) return
+      const recordIndex = state.source[state.pageIndex].children.findIndex(record => record.id === payload.id)
       if (~recordIndex) {
-        state.activePage.children.splice(recordIndex, 1)
+        state.source[state.pageIndex].children.splice(recordIndex, 1)
       }
     },
     // 设置激活记录
     [MutationTypes.SET_ACTIVE_RECORD] (state, payload) {
-      if (!state.activePage) return
+      if (!state.source[state.pageIndex]) return
       const { index, id } = payload
       if (index && index >= 0) {
-        state.activeRecord = state.activePage.children[index]
+        state.recordIndex = index
       }
       if (id) {
-        state.activeRecord = state.activePage.children.find(record => record.id === id)
+        const recordIndex = state.source[state.pageIndex].children.findIndex(record => record.id === id)
+        if (~recordIndex) {
+          state.pageIndex = recordIndex
+        }
       }
     },
     // 更新记录
     [MutationTypes.UPDATE_RECORD] (state, payload) {
-      if (!state.activePage) return
+      if (!state.source[state.pageIndex]) return
       const { index, id, record } = payload
       if (index && index >= 0) {
-        state.activePage.children.splice(index, 1, record)
+        state.source[state.pageIndex].children.splice(index, 1, record)
       }
       if (id) {
-        const target = state.activePage.children.find(item => item.id === id)
+        const target = state.source[state.pageIndex].children.find(item => item.id === id)
         console.log(target)
         Object.assign(target, omit(record, 'id'))
       }
+    },
+    // 设置记录索引
+    [MutationTypes.SET_RECORD_INDEX] (state, payload) {
+      state.recordIndex = payload.index
     }
+  },
+  getters: {
+    activePage: state => state.source[state.pageIndex],
+    activeRecord: state => state.source[state.pageIndex]?.children[state.recordIndex]
   },
   actions: {
   },

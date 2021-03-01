@@ -14,7 +14,7 @@
     <!-- E aside -->
 
     <!-- S page content -->
-    <section class="flow__page" v-if="activePage">
+    <section class="flow__page" ref="container" v-if="activePage">
       <div class="flow__header">
         <div class="flow__info">
           <input
@@ -43,7 +43,7 @@
       </div>
       <!-- / page header -->
 
-      <div class="flow__content">
+      <div class="flow__content" v-if="activePage?.children.length > 0">
         <record-card
           v-for="(record, index) of records"
           :key="record.id"
@@ -52,12 +52,10 @@
         />
       </div>
       <!-- / page content -->
-
-      <div class="flow__actions" v-if="activePage?.children.length > 0">
-        <el-button type="primary" icon="el-icon-top" circle></el-button>
-        <el-button type="primary" icon="el-icon-bottom" circle></el-button>
+      <div class="flow__content flow__none" v-else>
+        <i class="el-icon-news"></i>
+        <p>暂无记录</p>
       </div>
-      <!-- / page actions -->
 
     </section>
     <!-- E page content -->
@@ -68,6 +66,14 @@
       <p>暂无数据</p>
     </section>
     <!-- E none page -->
+
+    <!-- S page actions -->
+    <div class="flow__actions" v-if="activePage?.children.length > 0">
+      <el-button type="primary" icon="el-icon-top" circle :disabled="recordIndex === 0" @click="handlePrevious"
+      ></el-button>
+      <el-button type="primary" icon="el-icon-bottom" circle :disabled="recordIndex === records.length - 1" @click="handleNext"></el-button>
+    </div>
+    <!-- E page actions -->
 
   </div>
 </template>
@@ -92,19 +98,23 @@ export default {
 
     const [
       addPage, setActivePage, updatePage, removePage,
-      addRecord
+      addRecord, setRecordIndex
     ] = useMutations([
       MutationTypes.ADD_PAGE,
       MutationTypes.SET_ACTIVE_PAGE,
       MutationTypes.UPDATE_PAGE,
       MutationTypes.REMOVE_PAGE,
-      MutationTypes.ADD_RECORD
+      MutationTypes.ADD_RECORD,
+      MutationTypes.SET_RECORD_INDEX
     ])
 
     const state = reactive({
+      container: null,
       source: computed(() => store.state.source),
-      activePage: computed(() => cloneDeep(store.state.activePage)),
-      records: computed(() => store.state.activePage?.children),
+      activePage: computed(() => cloneDeep(store.getters.activePage)),
+      records: computed(() => store.getters.activePage?.children),
+      // Todo 监听record index 设置滚动位置
+      recordIndex: computed(() => store.state.recordIndex),
       treeProps: {
         children: 'children',
         label: 'title'
@@ -119,6 +129,7 @@ export default {
       },
       handleNodeClick: (node) => {
         if (node.type === 'PAGE') {
+          setRecordIndex({ index: 0 })
           setActivePage({ id: node.id })
         }
       },
@@ -132,6 +143,30 @@ export default {
       handleAddRecord: () => {
         const record = new Record({})
         addRecord({ record })
+      },
+      handlePrevious: () => {
+        setRecordIndex({ index: state.recordIndex - 1 })
+        const { height } = state.container.getBoundingClientRect()
+        state.container.animate([
+          { transform: `translateY(-${state.recordIndex * (height - 145)}px)` }
+        ], {
+          duration: 350,
+          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          iterations: 1,
+          fill: 'forwards'
+        })
+      },
+      handleNext: () => {
+        setRecordIndex({ index: state.recordIndex + 1 })
+        const { height } = state.container.getBoundingClientRect()
+        state.container.animate([
+          { transform: `translateY(-${state.recordIndex * (height - 145)}px)` }
+        ], {
+          duration: 350,
+          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          iterations: 1,
+          fill: 'forwards'
+        })
       }
     })
 
@@ -147,11 +182,12 @@ export default {
 @import '@/assets/scss/theme';
 
 .flow {
+  position: relative;
   display: flex;
   flex-flow: row nowrap;
   height: 100vh;
   width: 100%;
-  overflow: auto;
+  overflow: hidden;
 
   &__aside {
     width: 240px;
@@ -159,10 +195,8 @@ export default {
   }
 
   &__page {
-    position: relative;
-    height: 100vh;
+    height: 100%;
     width: 100%;
-    overflow: auto;
   }
 
   &__header {
