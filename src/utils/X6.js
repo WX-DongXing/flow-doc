@@ -1,12 +1,6 @@
 import { Graph, Node } from '@antv/x6'
 
 export class FnGroup extends Node {
-  constructor (collapsed = false, expandSize) {
-    super()
-    this.collapsed = collapsed
-    this.expandSize = expandSize
-  }
-
   isCollapsed () {
     return this.collapsed
   }
@@ -15,8 +9,8 @@ export class FnGroup extends Node {
     const target = collapsed == null ? !this.collapsed : collapsed
     if (target) {
       this.attr('buttonSign', { d: 'M 1 5 9 5 M 5 1 5 9' })
-      this.expandSize = { width: 200, height: 200 }
-      this.resize(100, 32)
+      this.expandSize = this.getSize()
+      this.resize(180, 30)
     } else {
       this.attr('buttonSign', { d: 'M 2 5 8 5' })
       if (this.expandSize) {
@@ -65,23 +59,25 @@ FnGroup.config({
   ],
   attrs: {
     body: {
+      rx: 4, // 圆角矩形
+      ry: 4,
       refWidth: '100%',
       refHeight: '100%',
       strokeWidth: 1,
-      fill: 'red',
-      stroke: 'none'
+      fill: 'white',
+      stroke: 1
     },
     buttonGroup: {
       refX: 8,
       refY: 8
     },
     button: {
-      height: 14,
+      height: 16,
       width: 16,
       rx: 2,
       ry: 2,
-      fill: '#f5f5f5',
-      stroke: '#ccc',
+      fill: 'transparent',
+      stroke: 'white',
       cursor: 'pointer',
       event: 'node:collapse'
     },
@@ -92,7 +88,7 @@ FnGroup.config({
     },
     label: {
       fontSize: 12,
-      fill: '#fff',
+      fill: 'black',
       refX: 32,
       refY: 10
     }

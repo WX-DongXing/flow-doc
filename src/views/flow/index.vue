@@ -82,7 +82,7 @@
 
 <script>
 import { cloneDeep, throttle } from 'lodash'
-import { computed, reactive, toRefs, watch } from 'vue'
+import { computed, reactive, toRefs, watch, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import MutationTypes from '@/store/mutation-types'
 import Page from '@/models/Page'
@@ -122,22 +122,6 @@ export default {
       }
     })
 
-    watch(() => state.recordIndex, (val, oldVal) => {
-      const { height } = state.container.parentNode.getBoundingClientRect()
-      state.container.style.transformOrigin = `center ${oldVal * height + ((height - 145) / 2 + 121)}px`
-      state.container.animate([
-        { transform: `translate3d(0, -${oldVal * (height - 145)}px, 0) rotateX(0)`, offset: 0 },
-        { transform: `translate3d(0, -${(oldVal + (val - oldVal) * 0.3) * (height - 145)}px, 0) rotateX(${(val - oldVal) * 2}deg)`, offset: 0.3 },
-        { transform: `translate3d(0, -${(oldVal + (val - oldVal) * 0.7) * (height - 145)}px, 0) rotateX(${(val - oldVal) * 2}deg)`, offset: 0.7 },
-        { transform: `translate3d(0, -${val * (height - 145)}px, 0) rotateX(0)`, offset: 1 }
-      ], {
-        duration: 1000,
-        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        iterations: 1,
-        fill: 'forwards'
-      })
-    })
-
     const methods = reactive({
       handleAddPage: () => {
         const page = new Page({})
@@ -172,6 +156,27 @@ export default {
       handleNext: throttle(() => {
         setRecordIndex({ index: state.recordIndex + 1 })
       }, 1000)
+    })
+
+    onMounted(() => {
+      methods.handleAddPage()
+      methods.handleAddRecord()
+    })
+
+    watch(() => state.recordIndex, (val, oldVal) => {
+      const { height } = state.container.parentNode.getBoundingClientRect()
+      state.container.style.transformOrigin = `center ${oldVal * height + ((height - 145) / 2 + 121)}px`
+      state.container.animate([
+        { transform: `translate3d(0, -${oldVal * (height - 145)}px, 0) rotateX(0)`, offset: 0 },
+        { transform: `translate3d(0, -${(oldVal + (val - oldVal) * 0.3) * (height - 145)}px, 0) rotateX(${(val - oldVal) * 2}deg)`, offset: 0.3 },
+        { transform: `translate3d(0, -${(oldVal + (val - oldVal) * 0.7) * (height - 145)}px, 0) rotateX(${(val - oldVal) * 2}deg)`, offset: 0.7 },
+        { transform: `translate3d(0, -${val * (height - 145)}px, 0) rotateX(0)`, offset: 1 }
+      ], {
+        duration: 1000,
+        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        iterations: 1,
+        fill: 'forwards'
+      })
     })
 
     return {

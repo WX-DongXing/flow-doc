@@ -90,7 +90,6 @@ export default createStore({
       }
       if (id) {
         const target = state.source[state.pageIndex].children.find(item => item.id === id)
-        console.log(target)
         Object.assign(target, omit(record, 'id'))
       }
     },

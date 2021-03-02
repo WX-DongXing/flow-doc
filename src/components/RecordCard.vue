@@ -37,6 +37,7 @@ import { computed, reactive, toRefs, onMounted } from 'vue'
 import { Graph } from '@antv/x6'
 import { useMutations } from '@/utils'
 import MutationTypes from '@/store/mutation-types'
+import { FnGroup } from '@/utils/X6'
 
 export default {
   name: 'RecordCard',
@@ -70,12 +71,62 @@ export default {
       }
     })
 
+    const createGroup = (
+      id,
+      x,
+      y,
+      width,
+      height,
+      fill,
+      stroke
+    ) => {
+      const group = new FnGroup({
+        id,
+        x,
+        y,
+        width,
+        height,
+        attrs: {
+          body: { fill, stroke },
+          label: { text: id }
+        }
+      })
+      state.graph.addNode(group)
+      return group
+    }
+
     onMounted(() => {
       state.graph = new Graph({
         container: state.board,
         autoResize: true,
         grid: true
       })
+
+      state.graph.on('node:collapse', ({ node }) => {
+        node.toggleCollapse()
+        const collapsed = node.isCollapsed()
+        // eslint-disable-next-line no-unused-vars
+        const collapse = (parent) => {
+          const cells = parent.getChildren()
+          if (cells) {
+            cells.forEach((cell) => {
+              if (collapsed) {
+                cell.hide()
+              } else {
+                cell.show()
+              }
+
+              if (cell instanceof FnGroup) {
+                if (!cell.isCollapsed()) {
+                  collapse(cell)
+                }
+              }
+            })
+          }
+        }
+      })
+      const a = createGroup('a', 100, 40, 180, 240, 'white', '#5f32c9')
+      console.log(a)
     })
 
     return {
@@ -93,7 +144,7 @@ export default {
   width: 100%;
   height: calc(100vh - 169px);
   border-radius: 4px;
-  background: rgba(255, 255, 255, .8);
+  background: rgba(255, 255, 255, .4);
   box-shadow: 0 16px 48px #e7ebf6;
   margin-bottom: 24px;
 
