@@ -1,6 +1,7 @@
 <template>
   <div class="record-card">
     <div class="record-card__content">
+      <div class="record-card__board" ref="board"></div>
     </div>
     <footer class="record-card__footer">
       <div class="record-card__info">
@@ -24,14 +25,16 @@
           >
         </div>
       </div>
-      <div class="record-card__actions"></div>
+      <div class="record-card__actions">
+      </div>
     </footer>
   </div>
 </template>
 
 <script>
 import { cloneDeep } from 'lodash'
-import { computed, reactive, toRefs } from 'vue'
+import { computed, reactive, toRefs, onMounted } from 'vue'
+import { Graph } from '@antv/x6'
 import { useMutations } from '@/utils'
 import MutationTypes from '@/store/mutation-types'
 
@@ -55,6 +58,8 @@ export default {
     ])
 
     const state = reactive({
+      board: null,
+      graph: {},
       record: computed(() => cloneDeep(data.value)),
       recordNo: computed(() => index)
     })
@@ -63,6 +68,14 @@ export default {
       handleUpdateRecord: () => {
         updateRecord({ id: data.value.id, record: state.record })
       }
+    })
+
+    onMounted(() => {
+      state.graph = new Graph({
+        container: state.board,
+        autoResize: true,
+        grid: true
+      })
     })
 
     return {
@@ -85,7 +98,16 @@ export default {
   margin-bottom: 24px;
 
   &__content {
+    display: flex;
     height: calc(100vh - 233px);
+    box-sizing: border-box;
+    padding: 16px;
+  }
+
+  &__board {
+    flex: 1;
+    height: 100%;
+    width: 100%;
   }
 
   &__footer {

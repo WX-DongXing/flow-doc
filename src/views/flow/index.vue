@@ -146,8 +146,13 @@ export default {
       },
       handleNodeClick: (node) => {
         if (node.type === 'PAGE') {
-          setRecordIndex({ index: 0 })
           setActivePage({ id: node.id })
+          setRecordIndex({ index: 0 })
+        } else {
+          const index = state.records.findIndex(record => record.id === node.id)
+          if (~index) {
+            setRecordIndex({ index })
+          }
         }
       },
       handleUpdatePage: () => {
