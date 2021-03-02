@@ -13,59 +13,61 @@
     </aside>
     <!-- E aside -->
 
-    <!-- S page content -->
-    <section class="flow__page" ref="container" v-if="activePage">
-      <div class="flow__header">
-        <div class="flow__info">
-          <input
-            type="text"
-            name="title"
-            placeholder="标题"
-            autocomplete="off"
-            class="flow__title"
-            v-model="activePage.title"
-            @input="handleUpdatePage"
-          >
-          <input
-            type="text"
-            name="desc"
-            placeholder="描述"
-            autocomplete="off"
-            class="flow__desc"
-            v-model="activePage.desc"
-            @input="handleUpdatePage"
-          >
+    <div class="flow__container">
+      <!-- S page content -->
+      <section class="flow__page" ref="container" v-if="activePage">
+        <div class="flow__header">
+          <div class="flow__info">
+            <input
+              type="text"
+              name="title"
+              placeholder="标题"
+              autocomplete="off"
+              class="flow__title"
+              v-model="activePage.title"
+              @input="handleUpdatePage"
+            >
+            <input
+              type="text"
+              name="desc"
+              placeholder="描述"
+              autocomplete="off"
+              class="flow__desc"
+              v-model="activePage.desc"
+              @input="handleUpdatePage"
+            >
+          </div>
+          <div>
+            <i class="el-icon-close flow__close" @click="handleRemovePage"></i>
+            <i class="el-icon-plus flow__close" @click="handleAddRecord"></i>
+          </div>
         </div>
-        <div>
-          <i class="el-icon-close flow__close" @click="handleRemovePage"></i>
-          <i class="el-icon-plus flow__close" @click="handleAddRecord"></i>
+        <!-- / page header -->
+
+        <div class="flow__content" v-if="activePage?.children.length > 0">
+          <record-card
+            v-for="(record, index) of records"
+            :key="record.id"
+            :index="index + 1"
+            :data="record"
+          />
         </div>
-      </div>
-      <!-- / page header -->
+        <!-- / page content -->
+        <div class="flow__content flow__none" v-else>
+          <i class="el-icon-news"></i>
+          <p>暂无记录</p>
+        </div>
 
-      <div class="flow__content" v-if="activePage?.children.length > 0">
-        <record-card
-          v-for="(record, index) of records"
-          :key="record.id"
-          :index="index + 1"
-          :data="record"
-        />
-      </div>
-      <!-- / page content -->
-      <div class="flow__content flow__none" v-else>
-        <i class="el-icon-news"></i>
-        <p>暂无记录</p>
-      </div>
+      </section>
+      <!-- E page content -->
 
-    </section>
-    <!-- E page content -->
-
-    <!-- S none page -->
-    <section class="flow__none" v-else>
-      <i class="el-icon-files"></i>
-      <p>暂无数据</p>
-    </section>
-    <!-- E none page -->
+      <!-- S none page -->
+      <section class="flow__none" v-else>
+        <i class="el-icon-files"></i>
+        <p>暂无数据</p>
+      </section>
+      <!-- E none page -->
+    </div>
 
     <!-- S page actions -->
     <div class="flow__actions" v-if="activePage?.children.length > 0">
@@ -79,8 +81,8 @@
 </template>
 
 <script>
-import { cloneDeep } from 'lodash'
-import { computed, reactive, toRefs } from 'vue'
+import { cloneDeep, throttle } from 'lodash'
+import { computed, reactive, toRefs, watch } from 'vue'
 import { useStore } from 'vuex'
 import MutationTypes from '@/store/mutation-types'
 import Page from '@/models/Page'
@@ -113,12 +115,27 @@ export default {
       source: computed(() => store.state.source),
       activePage: computed(() => cloneDeep(store.getters.activePage)),
       records: computed(() => store.getters.activePage?.children),
-      // Todo 监听record index 设置滚动位置
       recordIndex: computed(() => store.state.recordIndex),
       treeProps: {
         children: 'children',
         label: 'title'
       }
+    })
+
+    watch(() => state.recordIndex, (val, oldVal) => {
+      const { height } = state.container.parentNode.getBoundingClientRect()
+      state.container.style.transformOrigin = `center ${oldVal * height + ((height - 145) / 2 + 121)}px`
+      state.container.animate([
+        { transform: `translate3d(0, -${oldVal * (height - 145)}px, 0) rotateX(0)`, offset: 0 },
+        { transform: `translate3d(0, -${(oldVal + (val - oldVal) * 0.3) * (height - 145)}px, 0) rotateX(${(val - oldVal) * 2}deg)`, offset: 0.3 },
+        { transform: `translate3d(0, -${(oldVal + (val - oldVal) * 0.7) * (height - 145)}px, 0) rotateX(${(val - oldVal) * 2}deg)`, offset: 0.7 },
+        { transform: `translate3d(0, -${val * (height - 145)}px, 0) rotateX(0)`, offset: 1 }
+      ], {
+        duration: 1000,
+        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        iterations: 1,
+        fill: 'forwards'
+      })
     })
 
     const methods = reactive({
@@ -144,30 +161,12 @@ export default {
         const record = new Record({})
         addRecord({ record })
       },
-      handlePrevious: () => {
+      handlePrevious: throttle(() => {
         setRecordIndex({ index: state.recordIndex - 1 })
-        const { height } = state.container.getBoundingClientRect()
-        state.container.animate([
-          { transform: `translateY(-${state.recordIndex * (height - 145)}px)` }
-        ], {
-          duration: 350,
-          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          iterations: 1,
-          fill: 'forwards'
-        })
-      },
-      handleNext: () => {
+      }, 1000),
+      handleNext: throttle(() => {
         setRecordIndex({ index: state.recordIndex + 1 })
-        const { height } = state.container.getBoundingClientRect()
-        state.container.animate([
-          { transform: `translateY(-${state.recordIndex * (height - 145)}px)` }
-        ], {
-          duration: 350,
-          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          iterations: 1,
-          fill: 'forwards'
-        })
-      }
+      }, 1000)
     })
 
     return {
@@ -189,13 +188,20 @@ export default {
   width: 100%;
   overflow: hidden;
 
+  &__container{
+    height: 100vh;
+    width: 100%;
+    perspective: 1200px;
+    transform-style: preserve-3d;
+    overflow: hidden;
+  }
+
   &__aside {
     width: 240px;
     background: white;
   }
 
   &__page {
-    height: 100%;
     width: 100%;
   }
 
@@ -271,6 +277,7 @@ export default {
     flex-flow: column nowrap;
     justify-content: center;
     align-content: center;
+    height: 100%;
     width: 100%;
 
     i {
