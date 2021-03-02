@@ -10,7 +10,7 @@ export class FnGroup extends Node {
     if (target) {
       this.attr('buttonSign', { d: 'M 1 5 9 5 M 5 1 5 9' })
       this.expandSize = this.getSize()
-      this.resize(180, 30)
+      this.resize(180, 36)
     } else {
       this.attr('buttonSign', { d: 'M 2 5 8 5' })
       if (this.expandSize) {
@@ -21,7 +21,7 @@ export class FnGroup extends Node {
   }
 
   postprocess () {
-    this.toggleCollapse(false)
+    this.toggleCollapse()
   }
 }
 
@@ -65,11 +65,11 @@ FnGroup.config({
       refHeight: '100%',
       strokeWidth: 1,
       fill: 'white',
-      stroke: 1
+      stroke: '#5f32c9'
     },
     buttonGroup: {
       refX: 8,
-      refY: 8
+      refY: 10
     },
     button: {
       height: 16,
@@ -77,20 +77,20 @@ FnGroup.config({
       rx: 2,
       ry: 2,
       fill: 'transparent',
-      stroke: 'white',
+      stroke: 'transparent',
       cursor: 'pointer',
       event: 'node:collapse'
     },
     buttonSign: {
       refX: 3,
-      refY: 2,
+      refY: 3,
       stroke: '#808080'
     },
     label: {
       fontSize: 12,
       fill: 'black',
-      refX: 32,
-      refY: 10
+      refX: 30,
+      refY: 13
     }
   }
 })

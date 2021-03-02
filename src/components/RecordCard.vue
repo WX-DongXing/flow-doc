@@ -33,8 +33,9 @@
 
 <script>
 import { cloneDeep } from 'lodash'
-import { computed, reactive, toRefs, onMounted } from 'vue'
+import { computed, reactive, toRefs, onMounted, onUnmounted } from 'vue'
 import { Graph } from '@antv/x6'
+import { Layout } from '@antv/layout'
 import { useMutations } from '@/utils'
 import MutationTypes from '@/store/mutation-types'
 import { FnGroup } from '@/utils/X6'
@@ -71,36 +72,71 @@ export default {
       }
     })
 
-    const createGroup = (
-      id,
-      x,
-      y,
-      width,
-      height,
-      fill,
-      stroke
-    ) => {
-      const group = new FnGroup({
-        id,
-        x,
-        y,
-        width,
-        height,
-        attrs: {
-          body: { fill, stroke },
-          label: { text: id }
-        }
-      })
-      state.graph.addNode(group)
-      return group
-    }
-
     onMounted(() => {
       state.graph = new Graph({
         container: state.board,
         autoResize: true,
         grid: true
       })
+
+      const model = {
+        nodes: [
+          {
+            id: 'node1', // String，可选，节点的唯一标识
+            shape: 'fn-group',
+            x: 40, // Number，必选，节点位置的 x 值
+            y: 40, // Number，必选，节点位置的 y 值
+            width: 180, // Number，可选，节点大小的 width 值
+            height: 180, // Number，可选，节点大小的 height 值
+            attrs: {
+              label: { text: 'init' }
+            }
+          },
+          {
+            id: 'node2', // String，可选，节点的唯一标识
+            shape: 'fn-group',
+            x: 360, // Number，必选，节点位置的 x 值
+            y: 40, // Number，必选，节点位置的 y 值
+            width: 180, // Number，可选，节点大小的 width 值
+            height: 180, // Number，可选，节点大小的 height 值
+            attrs: {
+              label: { text: 'run' }
+            }
+          }
+        ],
+        edges: [
+          {
+            source: 'node1',
+            target: 'node2',
+            router: {
+              name: 'orth'
+            },
+            attrs: {
+              line: {
+                targetMarker: {
+                  args: { size: 6 },
+                  name: 'block'
+                },
+                stroke: '#200097',
+                strokeWidth: 1
+              }
+            }
+          }
+        ]
+      }
+
+      const dagreLayout = new Layout({
+        type: 'dagre',
+        rankdir: 'LR',
+        align: 'DR',
+        ranksep: 100,
+        nodesep: 100,
+        controlPoints: true
+      })
+
+      const layoutModel = dagreLayout.layout(model)
+
+      state.graph.fromJSON(layoutModel)
 
       state.graph.on('node:collapse', ({ node }) => {
         node.toggleCollapse()
@@ -125,8 +161,10 @@ export default {
           }
         }
       })
-      const a = createGroup('a', 100, 40, 180, 240, 'white', '#5f32c9')
-      console.log(a)
+    })
+
+    onUnmounted(() => {
+      state.graph.dispose()
     })
 
     return {
