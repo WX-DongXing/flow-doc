@@ -89,7 +89,8 @@ export default {
             width: 180, // Number，可选，节点大小的 width 值
             height: 180, // Number，可选，节点大小的 height 值
             attrs: {
-              label: { text: 'init' }
+              title: { text: 'init' },
+              desc: { text: '初始化' }
             }
           },
           {
@@ -100,7 +101,10 @@ export default {
             width: 180, // Number，可选，节点大小的 width 值
             height: 180, // Number，可选，节点大小的 height 值
             attrs: {
-              label: { text: 'run' }
+              title: { text: 'getDetail' },
+              desc: {
+                text: '获取详情'
+              }
             }
           }
         ],

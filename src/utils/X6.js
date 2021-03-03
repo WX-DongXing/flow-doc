@@ -10,7 +10,7 @@ export class FnGroup extends Node {
     if (target) {
       this.attr('buttonSign', { d: 'M 1 5 9 5 M 5 1 5 9' })
       this.expandSize = this.getSize()
-      this.resize(180, 36)
+      this.resize(180, 40)
     } else {
       this.attr('buttonSign', { d: 'M 2 5 8 5' })
       if (this.expandSize) {
@@ -33,7 +33,11 @@ FnGroup.config({
     },
     {
       tagName: 'text',
-      selector: 'label'
+      selector: 'title'
+    },
+    {
+      tagName: 'text',
+      selector: 'desc'
     },
     {
       tagName: 'g',
@@ -69,7 +73,7 @@ FnGroup.config({
     },
     buttonGroup: {
       refX: 8,
-      refY: 10
+      refY: 12
     },
     button: {
       height: 16,
@@ -86,11 +90,23 @@ FnGroup.config({
       refY: 3,
       stroke: '#808080'
     },
-    label: {
-      fontSize: 12,
+    title: {
+      fontSize: 14,
       fill: 'black',
-      refX: 30,
-      refY: 13
+      refX: 32,
+      refY: 7
+    },
+    desc: {
+      fontSize: 10,
+      fill: '#454851',
+      refX: 32,
+      refY: 25,
+      textWrap: {
+        width: 140,
+        height: 16,
+        breakWord: true,
+        ellipsis: true
+      }
     }
   }
 })
